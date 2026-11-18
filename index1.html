@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>STR Paternity Index Calculator & Allele Database</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#182230;--muted:#667085;--line:#e3e8f0;--accent:#4f46e5;--good:#087443;--warn:#9a6700;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial}
+header{background:#111827;color:#fff;padding:26px max(22px,calc((100% - 1240px)/2));}
+header h1{font-size:24px;margin:0 0 5px}header p{margin:0;color:#cbd5e1}
+main{max-width:1240px;margin:24px auto;padding:0 18px 50px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #10182808}
+h2{font-size:17px;margin:0 0 12px}.sub{color:var(--muted);font-size:12px}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:600;font-size:12px;color:#475467;margin-bottom:5px}
+input{font:inherit;border:1px solid #cfd6e2;border-radius:8px;padding:9px 10px;width:100%;min-width:0;background:white;color:var(--ink)}
+input:focus{outline:2px solid #c7d2fe;border-color:var(--accent)}
+.tablewrap{overflow-x:auto}.gridtable{width:100%;border-collapse:separate;border-spacing:0;min-width:820px}
+.gridtable th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#667085;background:#f8fafc;text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+.gridtable td{padding:8px 10px;border-bottom:1px solid #edf0f5;vertical-align:middle}
+.gridtable td:first-child{font-weight:700;white-space:nowrap}.geno{width:100%;min-width:95px}
+.status{font-size:11px;font-weight:700;white-space:nowrap}.ok{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}.geno.input-error{border:1.5px solid #d92d20!important;box-shadow:0 0 0 1px #d92d2030!important}.field-error{color:#d92d20;font-size:10px;line-height:1.25;margin-top:3px;white-space:normal;min-width:95px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:14px}
+.metric .label{color:var(--muted);font-size:12px}.metric .value{font-size:22px;font-weight:750;overflow-wrap:anywhere}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:9px;padding:10px 15px;font-weight:700;cursor:pointer;background:var(--accent);color:white}
+button.secondary{background:#e9ecf5;color:#273449}button:disabled{opacity:.5;cursor:not-allowed}
+.notice{border-radius:10px;padding:12px 14px;background:#fffaeb;color:#854d0e;border:1px solid #fedf89;font-size:12px}
+details{margin-top:12px}summary{cursor:pointer;font-weight:700}
+.small{font-size:12px;color:var(--muted)}.right{text-align:right}
+@media(max-width:720px){.meta,.metrics{grid-template-columns:1fr}.metric .value{font-size:19px}header{padding:22px 18px}}
+
+/* Modern responsive interface refresh */
+:root{
+ --bg:#f3f5fa;--card:#ffffff;--ink:#172033;--muted:#68748a;--line:#e4e9f2;
+ --accent:#4f46e5;--accent-dark:#3730a3;--accent-soft:#eef2ff;
+ --good:#087443;--warn:#9a6700;--bad:#b42318;
+}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#eef2ff 0,#f6f7fb 260px,var(--bg) 100%);font-size:14px;color:var(--ink)}
+header{
+ background:linear-gradient(115deg,#111827 0%,#1e1b4b 58%,#312e81 100%);
+ padding:24px max(20px,calc((100% - 1320px)/2)) 20px;
+ box-shadow:0 10px 30px #10182822;
+}
+.header-inner{max-width:1320px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand-mark{display:flex;align-items:center;gap:13px}
+.brand-icon{width:42px;height:42px;border-radius:13px;background:#ffffff18;border:1px solid #ffffff30;display:grid;place-items:center;font-size:20px}
+header h1{font-size:clamp(20px,3vw,27px);letter-spacing:-.5px;margin:0 0 3px}
+header p{font-size:13px;color:#c7d2fe;margin:0}
+.nav-tabs{display:flex;gap:7px;margin-top:20px;flex-wrap:wrap}
+.nav-tab{border:1px solid #ffffff2e;background:#ffffff0d;color:#e0e7ff;padding:9px 15px;border-radius:10px;font-weight:650;display:inline-flex;align-items:center;gap:8px}
+.nav-tab:hover{background:#ffffff18}
+.nav-tab.active{background:#fff;color:#312e81;border-color:#fff}
+main{max-width:1320px;margin:25px auto;padding:0 20px 56px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:clamp(15px,2.2vw,23px);margin-bottom:18px;box-shadow:0 5px 22px #17203308}
+.card h2{font-size:18px;letter-spacing:-.25px;margin:0 0 7px}
+.card h2 + .sub,.card > .sub{margin-top:0;margin-bottom:17px}
+.field label{font-size:12px;color:#526078;font-weight:700}
+input,select,textarea{border:1px solid #d8deea;border-radius:10px;padding:10px 12px;min-height:41px;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#818cf8;box-shadow:0 0 0 3px #6366f11c}
+.meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.tablewrap{border:1px solid var(--line);border-radius:12px;background:#fff;max-width:100%}
+.gridtable{min-width:850px}
+.gridtable th{position:sticky;top:0;z-index:1;background:#f5f7fc;color:#59657b;font-size:10px;letter-spacing:.055em;padding:12px 11px}
+.gridtable td{padding:9px 11px}
+.gridtable tbody tr:hover{background:#fafbff}
+.gridtable td:first-child{color:#111827}
+.geno{border-radius:8px;min-height:37px;padding:7px 9px}
+.status{font-size:11px}
+.metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.metric{border:1px solid #e3e8f3;background:linear-gradient(145deg,#fbfcff,#f4f6fb);border-radius:13px;padding:16px}
+.metric .label{font-size:12px;font-weight:650;color:#647089}
+.metric .value{font-size:clamp(19px,2.5vw,26px);letter-spacing:-.5px;color:#182230;margin-top:5px}
+.actions{gap:9px;margin-top:16px}
+button{border-radius:10px;padding:10px 15px;min-height:41px;background:var(--accent);box-shadow:0 2px 5px #4f46e522;transition:transform .12s,background .12s}
+button:hover{background:var(--accent-dark);transform:translateY(-1px)}
+button.secondary{background:#eef1f7;color:#344054;box-shadow:none}
+button.secondary:hover{background:#e3e8f2}
+.notice{border-radius:12px;line-height:1.6}
+.small{line-height:1.6}
+.page-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:16px}
+.page-intro h2{font-size:22px;letter-spacing:-.5px;margin:0 0 4px}
+.page-intro p{margin:0;color:var(--muted);font-size:13px}
+.db-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:12px;align-items:center;margin:18px 0}
+.db-stats{display:flex;gap:9px;flex-wrap:wrap}
+.db-stat{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:#f8faff;font-size:12px;color:#58657b}
+.db-stat strong{color:#1d2939;font-size:14px;margin-right:4px}
+.locus-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.locus-card{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff;min-width:0}
+.locus-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.locus-card h3{font-size:15px;margin:0;color:#182230}
+.locus-count{font-size:11px;color:#59657b;background:#f1f4fa;border-radius:20px;padding:4px 8px;white-space:nowrap}
+.allele-table{width:100%;border-collapse:collapse;font-size:12px}
+.allele-table th{text-align:left;color:#657189;font-size:10px;text-transform:uppercase;letter-spacing:.04em;background:#f7f8fc;padding:8px}
+.allele-table td{padding:8px;border-bottom:1px solid #edf0f5;font-variant-numeric:tabular-nums}
+.allele-table tr:last-child td{border-bottom:0}
+.allele-table td:first-child{font-weight:750;color:#202b40}
+.frequency-bar{height:5px;background:#eef0f7;border-radius:10px;overflow:hidden;min-width:45px;margin-top:4px}
+.frequency-bar span{display:block;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:10px}
+.hidden{display:none!important}
+#databasePage[hidden],#calculatorPage[hidden],#learnPage[hidden],#savedPage[hidden]{display:none!important}
+.edit-feedback{display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:10px;font-size:12px;font-weight:650}
+.edit-feedback.visible{display:block}
+tr.editing-row{background:#f5f3ff!important}
+.obligate-input{min-width:115px}
+.live-hint{margin:12px 0 0;padding:0 2px;color:#68748a;font-size:12px}
+#resultRows tr td:nth-child(5){font-weight:650;color:#3730a3}
+#resultRows tr td:nth-child(8){font-weight:700;color:#172554}
+@media(max-width:900px){
+ main{padding-left:14px;padding-right:14px}
+ .meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .locus-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+ header{padding:17px 15px 14px}
+ .header-top{align-items:flex-start}
+ .brand-icon{width:38px;height:38px}
+ .nav-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:15px}
+ .nav-tab{justify-content:center;padding:10px 8px;font-size:12px}
+ main{margin:15px auto;padding:0 10px 35px}
+ .card{border-radius:14px;padding:14px;margin-bottom:12px}
+ .card h2{font-size:16px}
+ .meta,.metrics{grid-template-columns:1fr;gap:11px}
+ .metrics{gap:9px}
+ .metric{padding:13px}
+ .metric .value{font-size:21px}
+ .actions{display:grid;grid-template-columns:1fr}
+ .actions button{width:100%}
+ .db-toolbar{grid-template-columns:1fr}
+ .db-stats{gap:6px}
+ .db-stat{flex:1}
+ .gridtable{min-width:820px}
+ .page-intro h2{font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* Dedicated professional report print layout */
+#printReport{display:none}
+@media print{
+ @page{size:A4 landscape;margin:12mm}
+ html,body{background:#fff!important;color:#172033!important;margin:0!important;padding:0!important}
+ body *{visibility:hidden!important}
+ #printReport,#printReport *{visibility:visible!important}
+ #printReport{display:block!important;position:absolute!important;inset:0 auto auto 0!important;width:100%!important;background:#fff!important;color:#172033!important;font-family:Arial,Helvetica,sans-serif!important}
+ .no-print{display:none!important}
+ #printReport .report-header{background:#172554!important;color:#fff!important;padding:18px 22px!important;border-radius:10px 10px 0 0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport .report-header h1{font-size:22px!important;margin:0 0 5px!important;color:#fff!important}
+ #printReport .report-header p{font-size:10px!important;margin:0!important;color:#dbeafe!important}
+ #printReport .report-meta{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important;margin:12px 0!important}
+ #printReport .meta-box{border:1px solid #dbe2ef!important;border-radius:7px!important;padding:8px!important;background:#f8fafc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport .meta-label{font-size:8px!important;text-transform:uppercase!important;letter-spacing:.06em!important;color:#64748b!important}
+ #printReport .meta-value{font-size:10px!important;font-weight:700!important;margin-top:3px!important;overflow-wrap:anywhere!important}
+ #printReport .report-metrics{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:9px!important;margin:10px 0 14px!important}
+ #printReport .report-metric{padding:11px!important;border-radius:8px!important;border:1px solid transparent!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport .report-metric.cpi{background:#eef2ff!important;border-color:#c7d2fe!important}
+ #printReport .report-metric.prob{background:#ecfdf3!important;border-color:#a6f4c5!important}
+ #printReport .report-metric.count{background:#fff7ed!important;border-color:#fed7aa!important}
+ #printReport .metric-label{font-size:9px!important;color:#475569!important}
+ #printReport .metric-value{font-size:18px!important;font-weight:800!important;margin-top:4px!important;overflow-wrap:anywhere!important}
+ #printReport .cpi .metric-value{color:#3730a3!important}
+ #printReport .prob .metric-value{color:#067647!important}
+ #printReport .count .metric-value{color:#9a3412!important}
+ #printReport h2{font-size:13px!important;margin:12px 0 7px!important;color:#1e293b!important}
+ #printReport table{width:100%!important;border-collapse:collapse!important;font-size:8px!important;table-layout:fixed!important}
+ #printReport th{background:#1e3a8a!important;color:#fff!important;padding:7px 5px!important;text-align:left!important;border:1px solid #1e3a8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport td{padding:6px 5px!important;border:1px solid #dbe2ef!important;overflow-wrap:anywhere!important}
+ #printReport tbody tr:nth-child(even){background:#f8fafc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport td:first-child{font-weight:800!important;color:#111827!important}
+ #printReport .cell-allele{background:#eef2ff!important;color:#3730a3!important;font-weight:700!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport .cell-frequency{color:#075985!important;font-weight:650!important}
+ #printReport .cell-pi{background:#ecfdf3!important;color:#067647!important;font-weight:800!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #printReport .cell-cpi{color:#3730a3!important;font-weight:800!important}
+ #printReport .report-note{font-size:8px!important;line-height:1.45!important;color:#64748b!important;margin-top:10px!important}
+ #printReport .report-footer{border-top:1px solid #dbe2ef!important;margin-top:12px!important;padding-top:7px!important;font-size:8px!important;color:#64748b!important;display:flex!important;justify-content:space-between!important}
+ #printReport tr{break-inside:avoid!important;page-break-inside:avoid!important}
+}
+
+
+/* Interactive student learning page */
+.learn-hero{position:relative;overflow:hidden;border-radius:20px;padding:clamp(22px,4vw,42px);color:#fff;background:radial-gradient(circle at 85% 20%,#818cf866,transparent 28%),linear-gradient(120deg,#111827,#25215d 58%,#4338a8);box-shadow:0 18px 45px #312e8130}
+.learn-hero:before,.learn-hero:after{content:"";position:absolute;border:1px solid #ffffff20;border-radius:50%;width:260px;height:260px;right:-55px;top:-125px;animation:orbit 18s linear infinite}
+.learn-hero:after{width:360px;height:360px;right:-110px;top:-175px;animation-duration:27s;animation-direction:reverse}
+.learn-hero>*{position:relative;z-index:1}
+.learn-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#c7d2fe;font-weight:800}
+.learn-hero h2{font-size:clamp(25px,4vw,40px);line-height:1.08;letter-spacing:-1px;max-width:720px;margin:12px 0}
+.learn-hero p{color:#e0e7ff;max-width:700px;font-size:14px}
+.learn-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.learn-tags span{border:1px solid #ffffff35;background:#ffffff12;border-radius:30px;padding:6px 10px;font-size:11px}
+.learn-section{margin-top:18px}
+.learn-section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.learn-section-head h2{margin:0;font-size:20px}
+.learn-section-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.learn-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s}
+.learn-card:hover{transform:translateY(-4px);box-shadow:0 13px 28px #18223012;border-color:#c7d2fe}
+.learn-number{width:30px;height:30px;border-radius:9px;background:#eef2ff;color:#4338ca;display:grid;place-items:center;font-weight:850;font-size:12px;margin-bottom:12px}
+.learn-card h3{font-size:14px;margin:0 0 6px}
+.learn-card p{font-size:12px;color:#667085;margin:0}
+.inherit-stage{position:relative;min-height:230px;background:linear-gradient(145deg,#f8faff,#eef2ff);border:1px solid #e0e7ff;border-radius:16px;padding:18px;overflow:hidden}
+.inherit-people{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:520px;margin:0 auto}
+.person{background:#fff;border:1px solid #dfe5f1;border-radius:13px;padding:12px;text-align:center;box-shadow:0 5px 15px #1e293b0b}
+.person strong{display:block;font-size:12px}.person small{color:var(--muted);font-size:10px}
+.chromosome-pair{display:flex;justify-content:center;gap:8px;margin:10px 0 3px}
+.chromosome{width:13px;height:43px;border-radius:10px;position:relative;background:linear-gradient(180deg,#818cf8,#4338ca);animation:chromPulse 2.6s ease-in-out infinite}
+.chromosome.alt{background:linear-gradient(180deg,#f0abfc,#a21caf);animation-delay:.4s}
+.chromosome:after{content:"";position:absolute;left:-3px;right:-3px;top:18px;height:6px;border-radius:8px;background:#ffffffa8}
+.inherit-arrow{text-align:center;color:#6366f1;font-size:22px;margin:9px 0;animation:arrowFloat 1.8s ease-in-out infinite}
+.child-alleles{display:flex;justify-content:center;gap:10px}
+.allele-pill{border-radius:10px;padding:7px 14px;background:#e0e7ff;color:#3730a3;font-weight:850;animation:allelePop .7s both}
+.allele-pill.paternal{background:#fae8ff;color:#86198f;animation-delay:.35s}
+.stage-caption{text-align:center;color:#667085;font-size:11px;margin-top:12px}
+.formula-panel{border:1px solid #dbe3f2;border-radius:15px;padding:18px;background:linear-gradient(145deg,#fff,#f8faff)}
+.formula-main{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:12px 0}
+.formula-chip{background:#eef2ff;border:1px solid #dbe3ff;border-radius:12px;padding:12px 15px;text-align:center;min-width:125px}
+.formula-chip strong{display:block;font-size:21px;color:#312e81}
+.formula-chip span{font-size:10px;color:#667085}
+.formula-sign{font-size:24px;color:#64748b;font-weight:800}
+.formula-note{font-size:12px;color:#667085;text-align:center}
+.walkthrough{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.walk-step{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff;opacity:.55;transform:translateY(8px);transition:opacity .5s,transform .5s,border-color .5s}
+.walk-step.visible{opacity:1;transform:translateY(0);border-color:#c7d2fe}
+.walk-step b{display:block;color:#4338ca;font-size:11px;margin-bottom:5px}
+.walk-step strong{font-size:13px;display:block;margin-bottom:4px}
+.walk-step span{font-size:11px;color:#667085}
+.example-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.example-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.example-result{border:1px solid #c7d2fe;background:linear-gradient(145deg,#f8faff,#eef2ff);border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:center}
+.example-result .big{font-size:30px;font-weight:850;letter-spacing:-1px;color:#312e81}
+.example-result small{color:#667085}
+.example-result .explanation{font-size:12px;color:#475467;margin-top:8px}
+.learn-callout{border-left:3px solid #6366f1;background:#f5f6ff;padding:12px 14px;border-radius:0 10px 10px 0;font-size:12px;color:#475467}
+.learn-check{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);padding:12px;border-radius:11px;background:#fff;margin-top:8px}
+.learn-check input{width:17px;min-width:17px;min-height:17px;margin-top:2px;accent-color:#4f46e5}
+.learn-check label{font-size:12px;cursor:pointer}
+.quiz-feedback{font-size:12px;font-weight:700;margin-top:10px;min-height:20px}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in-view{opacity:1;transform:translateY(0)}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes chromPulse{0%,100%{transform:scaleY(.9);filter:brightness(1)}50%{transform:scaleY(1.08);filter:brightness(1.2)}}
+@keyframes arrowFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+@keyframes allelePop{0%{opacity:0;transform:translateY(-12px) scale(.8)}75%{transform:translateY(2px) scale(1.05)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:850px){.learn-grid{grid-template-columns:1fr 1fr}.walkthrough{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.learn-grid,.walkthrough,.example-layout{grid-template-columns:1fr}.learn-hero{border-radius:15px}.inherit-stage{padding:13px}.example-inputs{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.learn-hero:before,.learn-hero:after,.chromosome,.inherit-arrow,.allele-pill{animation:none!important}.reveal,.walk-step{opacity:1;transform:none;transition:none}}
+
+
+.brand-footer{margin:28px 0 0;border-top:1px solid var(--line);background:linear-gradient(180deg,#fff,#f8fafc)}
+.brand-footer-inner{max-width:1200px;margin:0 auto;padding:22px 20px 18px;display:grid;grid-template-columns:1fr auto;gap:15px 24px;align-items:center}
+.brand-footer-copy strong{display:block;font-size:13px;color:var(--text);letter-spacing:.01em}
+.brand-footer-copy span,.brand-footer-contact span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.brand-footer-contact{text-align:right}
+.brand-footer-contact a{display:inline-block;margin-top:4px;color:#4338ca;font-size:12px;font-weight:700;text-decoration:none}
+.brand-footer-contact a:hover{text-decoration:underline}
+.brand-footer-legal{grid-column:1/-1;border-top:1px solid var(--line);padding-top:11px;color:var(--muted);font-size:10px}
+@media(max-width:560px){.brand-footer-inner{grid-template-columns:1fr}.brand-footer-contact{text-align:left}.brand-footer-legal{grid-column:1}}
+
+
+.request-details-field{grid-column:1/-1}.request-details-field textarea{width:100%;resize:vertical;font:inherit;border-radius:10px;padding:10px 12px;min-height:68px;color:var(--ink)}\n.saved-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.saved-toolbar h2{margin:0}
+.saved-list{display:grid;gap:10px}
+.saved-item{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff}
+.saved-item.selected{border-color:#818cf8;background:#f8faff}
+.saved-item-main{min-width:0;flex:1}
+.saved-item-main strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.saved-item-main span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.saved-item-actions{display:flex;gap:7px;flex-wrap:wrap}
+.saved-item-actions button{padding:8px 11px;font-size:11px}
+.saved-empty{border:1px dashed #cbd5e1;border-radius:12px;padding:25px;text-align:center;color:var(--muted);font-size:12px}
+.saved-meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.saved-meta-cell{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.saved-meta-cell span{display:block;color:var(--muted);font-size:10px}
+.saved-meta-cell strong{display:block;font-size:12px;overflow-wrap:anywhere;margin-top:3px}
+.saved-table{width:100%;border-collapse:collapse;font-size:11px;min-width:760px}
+.saved-table th{background:#f8fafc;color:#667085;text-align:left;font-size:10px;text-transform:uppercase;padding:9px;border-bottom:1px solid var(--line)}
+.saved-table td{padding:8px 9px;border-bottom:1px solid #edf0f5;font-variant-numeric:tabular-nums}
+.saved-table td:first-child{font-weight:750}
+@media(max-width:700px){.saved-meta-grid{grid-template-columns:1fr 1fr}.saved-item{align-items:flex-start;flex-direction:column}.saved-item-actions{width:100%}}
+
+</style>
+</head>
+<body>
+<header>
+<div class="header-inner">
+  <div class="header-top">
+    <div class="brand-mark">
+      <div class="brand-icon" aria-hidden="true">🧬</div>
+      <div>
+        <h1>STR Paternity Index Calculator</h1>
+        <p>Verifiler Plus · 23 autosomal STR loci · Allele frequency reference</p>
+      </div>
+    </div>
+  </div>
+  <nav class="nav-tabs" aria-label="Main navigation">
+    <button type="button" class="nav-tab active" id="navCalculator" aria-current="page">⌗ Calculator</button>
+    <button type="button" class="nav-tab" id="navDatabase">▦ Allele database</button>
+    <button type="button" class="nav-tab" id="navLearn">✦ Learn PI</button>
+    <button type="button" class="nav-tab" id="navSaved">▤ Saved work</button>
+  </nav>
+</div>
+</header>
+<main><div id="calculatorPage">
+<section class="card">
+<h2>Case information</h2>
+<div class="meta">
+<div class="field"><label>Case / reference ID</label><input id="caseId" placeholder="e.g. CASE-001"></div>
+<div class="field"><label>Mother identifier (optional)</label><input id="motherId" placeholder="Mother"></div>
+<div class="field"><label>Child identifier (optional)</label><input id="childId" placeholder="Child"></div>
+<div class="field"><label>Alleged father identifier (optional)</label><input id="fatherId" placeholder="Alleged father"></div>
+<div class="field"><label>Analyst (optional)</label><input id="analyst" placeholder="Analyst name"></div>
+<div class="field request-details-field"><label>Request details / notes (optional)</label><textarea id="requestDetails" rows="2" placeholder="Purpose of examination, request notes, reference details..."></textarea></div>
+<div class="field"><label>Population frequency dataset</label><input value="STR Allele Probability Database (provided)" disabled></div>
+</div>
+</section>
+<section class="card">
+<h2>Enter STR genotypes</h2>
+<p class="sub">Enter two alleles per person, separated by a comma (example: 14,17). Decimal microvariants such as 9.3 are supported. The calculator loads frequencies from the supplied database. The obligate paternal allele field is editable: select a suggestion or type the allele manually.</p>
+<div class="tablewrap"><table class="gridtable"><thead><tr><th>Locus</th><th>Mother genotype</th><th>Child genotype</th><th>Alleged father genotype</th><th>Obligate paternal allele</th><th>Frequency</th><th>Result</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="actions"><button class="secondary" id="fillExample">Load workbook example</button><button class="secondary" id="clear">Clear genotypes</button><button id="saveWork">Save this case</button></div>
+<p class="small" id="draftStatus" aria-live="polite">Automatic draft saving is enabled in this browser.</p>
+<p class="small live-hint">Results update automatically as soon as a locus has complete, compatible genotypes and an available allele frequency. No calculation button is needed.</p>
+</section>
+<section class="card" id="results" aria-live="polite">
+<h2>Results</h2>
+
+<div class="metrics">
+<div class="metric"><div class="label">Combined paternity index (CPI)</div><div class="value" id="cpi">—</div></div>
+<div class="metric"><div class="label">Probability of paternity*</div><div class="value" id="prob">—</div></div>
+<div class="metric"><div class="label">Loci evaluated</div><div class="value" id="count">0 / 23</div></div>
+</div>
+<p id="summary" class="small"></p>
+<div class="tablewrap" style="margin-top:14px"><table class="gridtable"><thead><tr><th>Locus</th><th>Mother</th><th>Child</th><th>Alleged father</th><th>Obligate paternal allele</th><th>Frequency</th><th>Likelyhood ratio</th><th>Paternity index</th><th>CPI</th></tr></thead><tbody id="resultRows"></tbody></table></div>
+<div class="actions"><button id="export" disabled>Export Excel report (.xlsx)</button><button class="secondary" id="print" disabled>Print report</button></div>
+<p class="small" id="modelNote">PI = likelihood ratio ÷ allele frequency; CPI is the product of all locus PIs. Select or enter the obligate paternal allele where required.</p><p class="small">*Probability is calculated using prior odds of 1:1 (prior probability 0.5): CPI/(CPI+1). Probability% is the same value multiplied by 100. These values are not a stand-alone determination of biological paternity.</p>
+</section>
+<section class="card">
+<h2>Calculation model and limitations</h2>
+<div class="notice"><b>Research / educational use only.</b> This tool is not validated or accredited for casework, court reporting, or clinical decisions. Results require review by a qualified forensic geneticist and validation against the laboratory's approved procedures.</div>
+<details open><summary>Hypotheses and formulas</summary>
+<p><b>H1:</b> The tested alleged father is the biological father of the child, with the tested mother being the biological mother.</p>
+<p><b>H2:</b> The tested mother is the biological mother, and an unrelated random man from the specified allele-frequency population is the biological father.</p>
+<p>For each locus, the numerator is P(child genotype | mother genotype, alleged-father genotype, H1). The denominator is P(child genotype | mother genotype, H2). The locus LR = numerator / denominator. CPI is the product of the locus LRs.</p>
+<p>The engine enumerates maternal and paternal gametes. Under H2, the random father's transmitted allele is weighted by its population allele frequency. This handles ambiguous maternal transmission without arbitrarily selecting one paternal allele.</p><p><b>Frequency provenance warning:</b> the supplied JSON does not identify its reference population or validation source. Confirm population relevance and source documentation before interpreting results.</p>
+<p><b>Current assumptions:</b> autosomal codominant STRs; Mendelian transmission; Hardy–Weinberg/random-mating allele-frequency model; no mutation; no null alleles; no genotyping error; no population-substructure correction (θ = 0); alleged father unrelated to the mother and to the alternative father. No related-father alternative is modelled.</p>
+</details>
+</section>
+<footer class="small">Allele frequencies are sourced from the supplied STR Allele Probability Database JSON. Its reference population is not identified in the supplied file. Missing allele frequencies are flagged; they are not invented or silently normalized.</footer></div>
+
+<section id="databasePage" hidden>
+  <div class="page-intro">
+    <div>
+      <h2>STR allele frequency database</h2>
+      <p>Browse all loci and the allele-frequency values supplied in your JSON database.</p>
+    </div>
+    <div class="db-stats">
+      <div class="db-stat"><strong id="dbLocusCount">23</strong> loci</div>
+      <div class="db-stat"><strong id="dbAlleleCount">0</strong> allele entries</div>
+      <div class="db-stat"><strong id="dbFrequencyScale">0–1</strong> frequency scale</div>
+    </div>
+  </div>
+  <section class="card">
+    <h2>Browse allele data</h2>
+    <p class="sub">Search by locus name or allele value. Frequencies are shown as decimals and percentages exactly converted from the supplied database.</p>
+    <div class="db-toolbar">
+      <input id="alleleSearch" type="search" placeholder="Search locus or allele (e.g. D3S1358, 9.3)" aria-label="Search loci or alleles">
+      <div class="db-stat">Showing <strong id="dbVisibleCount">23</strong> loci</div>
+    </div>
+    <div id="locusGrid" class="locus-grid"></div>
+    <p id="dbEmpty" class="small hidden">No loci or allele values match your search.</p>
+  </section>
+  <section class="card">
+    <h2>Database information</h2>
+    <p class="small">Database: STR Allele Probability Database. Source file: STR Allele probabilty.xlsx. Format version: 1.0. Probability scale: decimal frequency (0 to 1).</p>
+    <p class="small">The reference population and validation source are not identified in the supplied JSON file. Confirm population relevance and source documentation before interpreting forensic results.</p>
+  </section>
+</section>
+
+
+
+<section id="savedPage" hidden>
+  <div class="page-intro">
+    <div><h2>Saved work</h2><p>Cases saved in this browser are listed here. Select a case to review its information, genotypes and saved calculation results.</p></div>
+    <div class="db-stats"><div class="db-stat"><strong id="savedCaseCount">0</strong> saved cases</div><div class="db-stat"><strong>Browser</strong> local storage</div></div>
+  </div>
+  <div class="notice" style="margin-bottom:16px"><b>Privacy and storage:</b> Saved cases stay in this browser on this device. They are not uploaded to a server or synced to other devices. Anyone with access to this browser profile may be able to view them. Clearing browser site data may permanently delete them. Export important records separately and follow your organisation's data-protection rules.</div>
+  <section class="card">
+    <div class="saved-toolbar"><h2>Your saved cases</h2><button type="button" class="secondary" id="refreshSaved">Refresh list</button></div>
+    <div id="savedList" class="saved-list"></div>
+  </section>
+  <section class="card" id="savedDetailCard" hidden>
+    <div class="saved-toolbar"><div><h2 id="savedDetailTitle">Saved case</h2><p class="sub" id="savedDetailMeta"></p></div><div class="actions" style="margin:0"><button type="button" id="loadSavedCase">Load into calculator</button><button type="button" class="secondary" id="deleteSavedCase">Delete saved case</button></div></div>
+    <div id="savedDetailContent"></div>
+  </section>
+</section>
+
+<section id="learnPage" hidden>
+  <section class="learn-hero">
+    <div class="learn-kicker">Student learning studio · STR genetics</div>
+    <h2>Understand the Paternity Index, one allele at a time.</h2>
+    <p>Follow the inheritance of STR alleles, learn what the frequency means, and see how a locus Paternity Index becomes a Combined Paternity Index (CPI).</p>
+    <div class="learn-tags"><span>Animated concept lesson</span><span>Worked calculation</span><span>Interactive practice</span></div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>1. Start with inheritance</h2><p>A child receives one allele at each autosomal STR locus from each biological parent.</p></div></div>
+    <div class="inherit-stage">
+      <div class="inherit-people">
+        <div class="person"><strong>Mother</strong><small>Example genotype: 12, 14</small><div class="chromosome-pair"><i class="chromosome"></i><i class="chromosome alt"></i></div></div>
+        <div class="person"><strong>Alleged father</strong><small>Example genotype: 15, 17</small><div class="chromosome-pair"><i class="chromosome"></i><i class="chromosome alt"></i></div></div>
+      </div>
+      <div class="inherit-arrow">↓ &nbsp; one allele from each parent &nbsp; ↓</div>
+      <div class="child-alleles"><span class="allele-pill">Maternal 14</span><span class="allele-pill paternal">Paternal 15</span></div>
+      <div class="stage-caption">Illustrative inheritance: child genotype 14, 15. The paternal allele is the allele that cannot be explained by the mother's genotype.</div>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>2. Identify the obligate paternal allele</h2><p>Compare the mother and child first, then check whether the alleged father carries the inferred paternal allele.</p></div></div>
+    <div class="learn-grid">
+      <article class="learn-card"><div class="learn-number">A</div><h3>Mother: 12, 14</h3><p>These are the two alleles the mother could have passed to the child.</p></article>
+      <article class="learn-card"><div class="learn-number">B</div><h3>Child: 14, 15</h3><p>Allele 14 can be maternal. Allele 15 is not present in the mother, so it is the obligate paternal allele in this example.</p></article>
+      <article class="learn-card"><div class="learn-number">C</div><h3>Alleged father: 15, 17</h3><p>The alleged father carries allele 15. This is compatible with transmission at this locus; one locus alone does not establish paternity.</p></article>
+    </div>
+    <p class="learn-callout" style="margin-top:12px"><b>Remember:</b> If both child alleles are present in the mother, the paternal contribution may be ambiguous. Additional interpretation or a clearly supported obligate allele selection is needed. Do not force a choice just to obtain a number.</p>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>3. Understand the Paternity Index</h2><p>The PI compares the likelihood of the observed genetic evidence under competing paternity hypotheses.</p></div></div>
+    <div class="formula-panel">
+      <div class="formula-main">
+        <div class="formula-chip"><strong>PI</strong><span>Paternity Index at one locus</span></div>
+        <div class="formula-sign">=</div>
+        <div class="formula-chip"><strong>LR</strong><span>Likelihood ratio</span></div>
+        <div class="formula-sign">÷</div>
+        <div class="formula-chip"><strong>p</strong><span>Relevant allele frequency</span></div>
+      </div>
+      <p class="formula-note">This calculator's displayed locus calculation uses its configured numerator (1 for a homozygous alleged father, 0.5 for a heterozygous alleged father) divided by the selected obligate paternal allele frequency. This is the model implemented in this workbook-style calculator.</p>
+    </div>
+    <div class="learn-grid" style="margin-top:13px">
+      <article class="learn-card"><h3>What is allele frequency?</h3><p>It is the proportion of a particular allele in the reference population database. For example, 0.10 means 10% on the frequency scale.</p></article>
+      <article class="learn-card"><h3>Why does rarity matter?</h3><p>A lower frequency generally gives a larger index in this calculator's formula, because the denominator is smaller.</p></article>
+      <article class="learn-card"><h3>What does PI mean?</h3><p>A locus PI is a likelihood ratio for the genetic evidence at that locus under the stated model. It is not a direct probability that the alleged father is the father.</p></article>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>4. Watch a worked calculation</h2><p>Example values are illustrative. Try changing the allele frequency and numerator.</p></div></div>
+    <div class="card">
+      <div class="example-layout">
+        <div>
+          <div class="example-inputs">
+            <div class="field"><label for="lessonNumerator">Numerator / LR</label><input id="lessonNumerator" type="number" min="0.0001" step="0.5" value="0.5"></div>
+            <div class="field"><label for="lessonFrequency">Allele frequency (p)</label><input id="lessonFrequency" type="number" min="0.000001" max="1" step="0.01" value="0.10"></div>
+          </div>
+          <p class="small" style="margin-top:10px">Example: heterozygous alleged father → numerator 0.5; selected allele frequency → 0.10.</p>
+        </div>
+        <div class="example-result" aria-live="polite">
+          <small>PI = numerator ÷ frequency</small>
+          <div class="big" id="lessonPI">5</div>
+          <div class="explanation" id="lessonWorking">0.5 ÷ 0.10 = 5. A PI of 5 means the observed locus evidence is five times as likely under H1 as under H2, within the assumptions of the model.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>5. Combine loci to obtain CPI</h2><p>When loci are treated as independent under the model, multiply their individual PIs.</p></div></div>
+    <div class="formula-panel">
+      <div class="formula-main">
+        <div class="formula-chip"><strong>PI₁</strong><span>Locus 1</span></div><div class="formula-sign">×</div>
+        <div class="formula-chip"><strong>PI₂</strong><span>Locus 2</span></div><div class="formula-sign">×</div>
+        <div class="formula-chip"><strong>…</strong><span>Remaining loci</span></div><div class="formula-sign">=</div>
+        <div class="formula-chip"><strong>CPI</strong><span>Combined PI</span></div>
+      </div>
+      <p class="formula-note">Example: PI₁ = 5, PI₂ = 4, PI₃ = 2 → CPI = 5 × 4 × 2 = 40.</p>
+    </div>
+    <div class="walkthrough" style="margin-top:13px">
+      <div class="walk-step"><b>STEP 01</b><strong>Evaluate each locus</strong><span>Check genotypes, inheritance and frequency.</span></div>
+      <div class="walk-step"><b>STEP 02</b><strong>Obtain each PI</strong><span>Calculate the locus likelihood ratio.</span></div>
+      <div class="walk-step"><b>STEP 03</b><strong>Multiply PIs</strong><span>Combine the valid locus indices.</span></div>
+      <div class="walk-step"><b>STEP 04</b><strong>Report CPI</strong><span>State the model and assumptions.</span></div>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>6. Convert CPI to probability (with prior odds)</h2><p>This calculator uses prior odds of 1:1, equivalent to a prior probability of 0.5.</p></div></div>
+    <div class="formula-panel">
+      <div class="formula-main">
+        <div class="formula-chip"><strong>CPI</strong><span>Combined paternity index</span></div>
+        <div class="formula-sign">÷</div>
+        <div class="formula-chip"><strong>CPI + 1</strong><span>Denominator</span></div>
+        <div class="formula-sign">=</div>
+        <div class="formula-chip"><strong>Probability</strong><span>Posterior probability</span></div>
+      </div>
+      <p class="formula-note">For CPI = 40: probability = 40 ÷ 41 = 0.9756, or about 97.56%. This depends on the stated prior odds and is not the same as CPI.</p>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="learn-section-head"><div><h2>7. Test your understanding</h2><p>Choose the best answer for each question.</p></div></div>
+    <div class="card">
+      <p><b>Question 1.</b> Mother = 10, 12 and child = 12, 14. Which allele is obligate paternal in this simple example?</p>
+      <div class="learn-check"><input type="radio" name="lessonQ1" id="lessonQ1a" value="10"><label for="lessonQ1a">10</label></div>
+      <div class="learn-check"><input type="radio" name="lessonQ1" id="lessonQ1b" value="12"><label for="lessonQ1b">12</label></div>
+      <div class="learn-check"><input type="radio" name="lessonQ1" id="lessonQ1c" value="14"><label for="lessonQ1c">14</label></div>
+      <p class="quiz-feedback" id="lessonFeedback1"></p>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+      <p><b>Question 2.</b> If numerator = 0.5 and allele frequency = 0.05, what is the PI?</p>
+      <div class="learn-check"><input type="radio" name="lessonQ2" id="lessonQ2a" value="0.1"><label for="lessonQ2a">0.1</label></div>
+      <div class="learn-check"><input type="radio" name="lessonQ2" id="lessonQ2b" value="10"><label for="lessonQ2b">10</label></div>
+      <div class="learn-check"><input type="radio" name="lessonQ2" id="lessonQ2c" value="20"><label for="lessonQ2c">20</label></div>
+      <p class="quiz-feedback" id="lessonFeedback2"></p>
+      <button type="button" id="checkLessonQuiz" style="margin-top:8px">Check answers</button>
+    </div>
+  </section>
+
+  <section class="learn-section reveal">
+    <div class="notice"><b>Important scientific limitations:</b> This lesson explains the calculation implemented in this educational calculator; it is not a substitute for validated forensic interpretation. The supplied allele-frequency JSON does not identify its reference population. Population relevance, mutation, null alleles, genotyping error, population substructure, related alternative fathers, linkage, and laboratory validation must be considered under the laboratory's approved method. Never use this educational page or calculator alone for casework, court reporting, or clinical decisions.</div>
+  </section>
+</section>
+
+</main>
+
+<section id="printReport" aria-label="Printable paternity index report">
+  <div class="report-header">
+    <h1>STR PATERNITY INDEX REPORT</h1>
+    <p>VERIFILER PLUS · AUTOSOMAL STR ANALYSIS · RESEARCH / EDUCATIONAL REPORT</p>
+  </div>
+  <div class="report-meta" id="printMeta"></div>
+  <div class="report-metrics" id="printMetrics"></div>
+  <h2>STR Locus Results</h2>
+  <table>
+    <thead><tr>
+      <th style="width:8%">Locus</th><th style="width:12%">Mother</th><th style="width:12%">Child</th>
+      <th style="width:12%">Alleged father</th><th style="width:12%">Obligate paternal allele</th>
+      <th style="width:10%">Frequency</th><th style="width:10%">Likelihood ratio</th>
+      <th style="width:10%">Paternity index</th><th style="width:14%">Cumulative CPI</th>
+    </tr></thead>
+    <tbody id="printRows"></tbody>
+  </table>
+  <div class="report-note" id="printNotes"></div>
+  <div class="report-footer"><span>STR Paternity Index Calculator · Verifiler Plus</span><span id="printGenerated"></span></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js">
+</script>
+
+<script>
+const DB = {"D3S1358":{"14":0.025,"15":0.366,"16":0.329,"17":0.201,"18":0.067,"19":0.01},"vWA":{"14":0.1959,"15":0.0206,"16":0.1392,"17":0.3144,"18":0.2062,"19":0.1082,"20":0.0156},"D16S539":{"9":0.355,"10":0.164,"11":0.19,"12":0.175,"13":0.097,"14":0.015},"CSF1PO":{"7":0.02,"9":0.067,"10":0.201,"11":0.216,"12":0.386,"13":0.087,"14":0.015,"15":0.005},"D6S1043":{"10":0.03,"11":0.149,"12":0.123,"12.3":0.005,"13":0.123,"14":0.154,"15":0.036,"16":0.005,"17":0.072,"18":0.159,"19":0.092,"20":0.041,"21":0.005},"D8S1179":{"10":0.123,"11":0.118,"12":0.118,"13":0.201,"14":0.201,"15":0.128,"16":0.092,"17":0.01,"18":0.005},"D21S11":{"28":0.056,"28.2":0.005,"29":0.201,"30":0.329,"30.2":0.005,"30.3":0.01,"31":0.123,"31.2":0.036,"32":0.056,"32.2":0.113,"33":0.015,"33.2":0.046},"D18S51":{"12":0.036,"13":0.216,"14":0.237,"15":0.18,"16":0.128,"17":0.067,"18":0.03,"19":0.041,"20":0.025,"21":0.01,"22":0.015,"23":0.005,"28":0.005},"D5S818":{"7":0.015,"8":0.005,"9":0.097,"10":0.226,"11":0.273,"12":0.206,"13":0.159,"14":0.015},"D2S441":{"8":0.005,"9.1":0.005,"10":0.268,"11":0.35,"11.3":0.03,"12":0.216,"12.3":0.005,"13":0.025,"14":0.082,"15":0.01},"D19S433":{"12":0.036,"12.2":0.025,"13":0.283,"13.2":0.02,"14":0.299,"14.2":0.103,"15":0.061,"15.2":0.123,"16":0.01,"16.2":0.03,"17.2":0.005},"FGA":{"17":0.01,"18":0.02,"19":0.05,"20":0.08,"21":0.1,"22":0.24,"23":0.2,"24":0.14,"25":0.07,"26":0.03},"D10S1248":{"10":0.0052,"12":0.0876,"13":0.3196,"14":0.2526,"15":0.2062,"16":0.0979,"17":0.0309},"D22S1045":{"11":0.201,"12":0.0052,"14":0.0103,"15":0.3093,"16":0.2268,"17":0.2216,"18":0.0206,"19":0.0052},"D1S1656":{"11":0.03,"12":0.046,"13":0.134,"14":0.061,"15":0.278,"16":0.201,"16.3":0.015,"17":0.072,"17.3":0.087,"18":0.015,"18.3":0.051,"19.3":0.005},"D13S317":{"8":0.216,"9":0.144,"10":0.103,"11":0.268,"12":0.211,"13":0.056},"D7S820":{"8":0.13,"9":0.04,"10":0.26,"11":0.35,"12":0.17,"13":0.02},"Penta E":{"5":0.072,"8":0.005,"9":0.025,"10":0.061,"11":0.159,"12":0.092,"13":0.051,"14":0.051,"15":0.113,"16":0.056,"17":0.082,"18":0.077,"19":0.041,"19.4":0.01,"20":0.02,"21":0.02,"22":0.03,"23":0.02,"25":0.005},"Penta D":{"6":0.01,"8":0.005,"9":0.314,"10":0.185,"11":0.18,"12":0.18,"13":0.103,"14":0.01,"15":0.01},"TH01":{"6":0.1701,"7":0.268,"8":0.0722,"9":0.4433,"9.3":0.0412,"10":0.0052},"D12S391":{"15":0.004,"16":0.012,"17":0.135,"17.3":0.005,"18":0.246,"18.3":0.011,"19":0.168,"20":0.096,"21":0.095,"22":0.0108,"23":0.069,"24":0.028,"25":0.014,"26":0.004,"27":0.002},"D2S1338":{"16":0.02,"17":0.056,"18":0.134,"19":0.18,"20":0.159,"21":0.015,"22":0.051,"23":0.164,"24":0.128,"25":0.046,"26":0.036,"27":0.005},"TPOX":{"8":0.5464,"9":0.0825,"10":0.0309,"11":0.2938,"12":0.0464}};
+const LOCI = Object.keys(DB);
+const DISPLAY_LOCI={"Penta E":"Penta E","Penta D":"PentaD"};
+const displayLocus=l=>DISPLAY_LOCI[l]||l;
+const examples = {
+"D3S1358":["14,17","17,18","17,18"],"vWA":["17,17","17,19","17,19"],"D16S539":["11,13","11,13","9,11"],"CSF1PO":["12,12","11,12","11,11"],"D6S1043":["11,19","19,20","12,20"],"D8S1179":["11,15","11,15","10,15"],"D21S11":["30,32.2","30,31.2","31.2,31.2"],"D18S51":["17,18","16,18","16,16"],"D5S818":["11,13","12,13","11,12"],"D2S441":["10,10","10,10","10,10"],"D19S433":["13,14","14,16.2","14.2,16.2"],"FGA":["22,25","21,25","21,24"],"D10S1248":["14,15","15,15","15,15"],"D22S1045":["11,17","11,11","11,17"],"D1S1656":["11,16","11,16","16,17"],"D13S317":["8,11","8,11","8,11"],"D7S820":["9,11","9,11","9,11"],"Penta E":["11,12","12,17","15,17"],"Penta D":["8,11","8,15","12,15"],"TH01":["6,6","6,9","6,9"],"D12S391":["18,18","18,24","21,24"],"D2S1338":["19,22","19,20","18,20"],"TPOX":["8,12","8,11","9,11"]
+};
+let lastResults=[];
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function renderRows(){
+ $("rows").innerHTML=LOCI.map((l,i)=>`<tr id="locusRow_${i}"><td>${esc(l)}</td>${["m","c","f"].map(k=>`<td><input class="geno" id="${k}_${i}" placeholder="e.g. 14,17" autocomplete="off" oninput="refreshAlleleChoice(${i});calculate()"><div class="field-error" id="err_${k}_${i}"></div></td>`).join("")}<td><input class="geno obligate-input" id="obl_${i}" list="oblList_${i}" placeholder="Auto / enter allele" aria-label="Editable obligate paternal allele for ${esc(l)}" autocomplete="off" oninput="calculate()"><div class="field-error" id="err_obl_${i}"></div><datalist id="oblList_${i}"></datalist></td><td id="freq_${i}">—</td><td id="st_${i}" class="status">Awaiting data</td></tr>`).join("");
+}
+function refreshAlleleChoice(i){
+ const field=$("obl_"+i), list=$("oblList_"+i), old=field.value.trim();
+ try{
+   const m=parseGeno($("m_"+i).value,LOCI[i]),c=parseGeno($("c_"+i).value,LOCI[i]),f=parseGeno($("f_"+i).value,LOCI[i]);
+   let candidates=[...new Set(c.filter(a=>f.includes(a)))];
+   const uniquelyNonmaternal=[...new Set(c.filter(a=>!m.includes(a)))];
+   if(uniquelyNonmaternal.length===1 && candidates.includes(uniquelyNonmaternal[0])) candidates=uniquelyNonmaternal;
+   list.innerHTML=candidates.map(a=>`<option value="${esc(a)}"></option>`).join("");
+   if(!old && candidates.length===1) field.value=candidates[0];
+ }catch(e){
+   list.innerHTML="";
+ }
+}
+function parseGeno(raw,locus){
+ const text=String(raw||"").trim();
+ if(!text) throw Error("Genotype is missing");
+ const alleles=text.split(/[,;\s/]+/).filter(Boolean);
+ if(alleles.length!==2) throw Error("Enter exactly two alleles (example: 14,17)");
+ for(const allele of alleles){
+   if(!/^\d+(?:\.\d+)?$/.test(allele)) throw Error("Use numeric allele values only");
+   if(!Number.isFinite(Number(allele)) || Number(allele)<=0) throw Error("Allele values must be positive numbers");
+   if(locus && DB[locus] && !Object.prototype.hasOwnProperty.call(DB[locus],allele)){
+     throw Error("Allele "+allele+" is not listed for "+locus+" in the supplied frequency database");
+   }
+ }
+ return alleles;
+}
+function gametes(g){
+ if(g[0]===g[1]) return [[g[0],1]];
+ return [[g[0],0.5],[g[1],0.5]];
+}
+function sameGenotype(a,b){return (a[0]===b[0]&&a[1]===b[1])||(a[0]===b[1]&&a[1]===b[0]);}
+function fmt(n){if(n===null||n===undefined||!Number.isFinite(n))return "—";if(n===0)return "0";if(Math.abs(n)>=1e6||Math.abs(n)<0.001)return n.toExponential(5);return Number(n.toPrecision(7)).toString();}
+const ORIGINAL_FREQ_OVERRIDES={"vWA|19":0.11,"CSF1PO|11":0.22,"D21S11|31.2":0.04,"D2S441|10":0.27};
+let originalResults=[];
+function calcOriginal(l,m,c,f,i){
+ const candidates=[...new Set(c.filter(a=>f.includes(a)))];
+ const nonMaternal=[...new Set(c.filter(a=>!m.includes(a)))];
+ let selected=$("obl_"+i).value.trim();
+ if(selected && !/^\d+(?:\.\d+)?$/.test(selected))
+   return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:selected,frequency:null,numerator:null,pi:null,status:"Obligate paternal allele must be numeric",valid:false};
+ if(selected && !candidates.includes(selected))
+   return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:selected,frequency:null,numerator:null,pi:null,status:"Selected allele is not shared by child and alleged father",valid:false};
+ if(!selected && nonMaternal.length===1 && candidates.includes(nonMaternal[0]))selected=nonMaternal[0];
+ if(!selected && candidates.length===1)selected=candidates[0];
+ if(!selected && candidates.length>1)return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:candidates.join(" / "),frequency:null,numerator:null,pi:null,status:"Ambiguous — select obligate allele",valid:false};
+ if(!selected || !candidates.includes(selected))return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:selected||"None",frequency:null,numerator:null,pi:null,status:"No compatible paternal allele",valid:false};
+ const frequency=ORIGINAL_FREQ_OVERRIDES[l+"|"+selected]??DB[l][selected];
+ if(frequency===undefined)return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:selected,frequency:null,numerator:null,pi:null,status:"Missing allele frequency",valid:false};
+ const numerator=f[0]===f[1]?1:0.5;
+ return {locus:l,mother:m.join(", "),child:c.join(", "),father:f.join(", "),paternal:selected,frequency,numerator,pi:numerator/frequency,status:"Evaluated",valid:true};
+}
+function setFieldError(id,message){
+  const field=$(id), error=$("err_"+id);
+  if(field) field.classList.toggle("input-error",!!message);
+  if(error) error.textContent=message||"";
+}
+function clearRowErrors(i){
+  ["m","c","f","obl"].forEach(k=>setFieldError(k+"_"+i,""));
+}
+function calculate(){
+  const results=[];
+  LOCI.forEach((l,i)=>{
+    clearRowErrors(i);
+    const ids=["m_"+i,"c_"+i,"f_"+i];
+    const vals=ids.map(id=>$(id).value.trim());
+    const obligate=$("obl_"+i).value.trim();
+
+    if(vals.every(x=>!x)){
+      const r={locus:l,mother:"",child:"",father:"",paternal:"",frequency:null,numerator:null,pi:null,status:"Awaiting data",valid:false};
+      results.push(r);$("freq_"+i).textContent="—";$("st_"+i).textContent=r.status;$("st_"+i).className="status";return;
+    }
+
+    let hasInputError=false;
+    vals.forEach((value,j)=>{
+      if(!value){
+        setFieldError(ids[j],"Required");
+        hasInputError=true;
+      }else{
+        try{parseGeno(value,l);}
+        catch(e){setFieldError(ids[j],"Error: "+e.message);hasInputError=true;}
+      }
+    });
+    if(hasInputError){
+      const r={locus:l,mother:vals[0],child:vals[1],father:vals[2],paternal:obligate,frequency:null,numerator:null,pi:null,status:"Error",valid:false};
+      results.push(r);$("freq_"+i).textContent="—";$("st_"+i).textContent="Error";$("st_"+i).className="status bad";return;
+    }
+
+    try{
+      const [m,c,f]=vals.map(v=>parseGeno(v,l));
+      const r=calcOriginal(l,m,c,f,i);
+      results.push(r);
+      $("freq_"+i).textContent=r.valid?fmt(r.frequency):"—";
+      if(!r.valid){
+        $("st_"+i).textContent="Error";
+        $("st_"+i).className="status bad";
+        setFieldError("obl_"+i,r.status);
+      }else{
+        $("st_"+i).textContent="Evaluated";
+        $("st_"+i).className="status ok";
+      }
+    }catch(e){
+      const r={locus:l,mother:vals[0],child:vals[1],father:vals[2],paternal:obligate||"—",frequency:null,numerator:null,pi:null,status:e.message,valid:false};
+      results.push(r);$("freq_"+i).textContent="—";$("st_"+i).textContent="Error";$("st_"+i).className="status bad";
+    }
+  });
+  originalResults=results;
+  renderResults();
+}
+function renderResults(){
+  const results=originalResults;
+  lastResults=results;
+  const valid=results.filter(r=>r.valid);
+  const allEntered=results.length===LOCI.length && valid.length===LOCI.length;
+  let running=1;
+  const cumulative=results.map(r=>{
+    if(!r.valid)return null;
+    running*=Number(r.pi);
+    return running;
+  });
+  const cpi=allEntered?running:null;
+  const partialCpi=valid.length?valid.reduce((product,r)=>product*Number(r.pi),1):null;
+  const prob=cpi===null?null:(cpi===0?0:cpi/(1+cpi));
+  $("cpi").textContent=allEntered?fmt(cpi):(partialCpi===null?"—":"Partial: "+fmt(partialCpi));
+  $("results").querySelector(".metric .label").textContent=allEntered?"Combined paternity index":(valid.length?"Partial CPI ("+valid.length+"/23 loci)":"Combined paternity index");
+  $("prob").textContent=prob===null?"Awaiting all 23 loci":(prob*100).toPrecision(8)+"%";
+  $("count").textContent=valid.length+" / 23";
+  $("summary").textContent=allEntered
+    ?"All 23 loci are complete. Final CPI and probability have been updated automatically."
+    :"Live calculation is active. Each completed locus shows its frequency, likelihood ratio and PI immediately. The displayed partial CPI includes only currently valid loci; final CPI and probability are confirmed when all 23 loci are valid.";
+  $("modelNote").textContent="Live calculation: G = 0.5 for a heterozygous alleged father or 1 for a homozygous alleged father; F = selected allele frequency; PI = G ÷ F; CPI = product of all 23 locus PIs.";
+  $("resultRows").innerHTML=results.map((r,i)=>{
+    return `<tr><td>${esc(displayLocus(r.locus))}</td><td>${esc(r.mother||"—")}</td><td>${esc(r.child||"—")}</td><td>${esc(r.father||"—")}</td><td>${esc(r.paternal||"—")}</td><td>${fmt(r.frequency)}</td><td>${fmt(r.numerator)}</td><td>${fmt(r.pi)}</td><td>${cumulative[i]===null?"—":fmt(cumulative[i])}</td></tr>`;
+  }).join("");
+  $("export").disabled=!allEntered;
+  $("print").disabled=!valid.length;
+}
+const exampleObligate={"D3S1358":"18","vWA":"19","D16S539":"11","CSF1PO":"11","D6S1043":"20","D8S1179":"15","D21S11":"31.2","D18S51":"16","D5S818":"12","D2S441":"10","D19S433":"16.2","FGA":"21","D10S1248":"15","D22S1045":"11","D1S1656":"16","D13S317":"11","D7S820":"11","Penta E":"17","Penta D":"15","TH01":"9","D12S391":"24","D2S1338":"20","TPOX":"11"};
+function fillExample(){LOCI.forEach((l,i)=>{const v=examples[l];["m","c","f"].forEach((k,j)=>$(k+"_"+i).value=v[j]);refreshAlleleChoice(i);$("obl_"+i).value=exampleObligate[l]||"";});calculate();}
+function clearAll(){LOCI.forEach((l,i)=>{["m","c","f"].forEach(k=>$(k+"_"+i).value="");$("obl_"+i).value="";clearRowErrors(i);$("freq_"+i).textContent="—";refreshAlleleChoice(i);});calculate();$("summary").textContent="Genotypes cleared. Results will calculate automatically as you enter data.";$("print").disabled=true;}
+async function exportXlsx(){
+  if(!window.ExcelJS){
+    alert("Excel export library did not load. Check your internet connection and retry.");
+    return;
+  }
+
+  // The website's calculated results are the single source of truth.
+  // Never export a second, independently recalculated set of values.
+  const rows = originalResults;
+  const invalid = rows.filter(r =>
+    !r || !r.valid ||
+    !Number.isFinite(Number(r.frequency)) ||
+    !Number.isFinite(Number(r.numerator)) ||
+    !Number.isFinite(Number(r.pi))
+  );
+
+  if(rows.length !== LOCI.length || invalid.length){
+    alert("Excel export stopped: all 23 loci must have valid genotypes, frequencies and paternity indices. Resolve the highlighted loci and calculate again.");
+    return;
+  }
+
+  const cpiValue = rows.reduce((product, r) => product * Number(r.pi), 1);
+  if(!Number.isFinite(cpiValue)){
+    alert("Excel export stopped: the combined paternity index is not a finite number.");
+    return;
+  }
+
+  // Verify that each PI equals the website's own G/F calculation.
+  for(const r of rows){
+    const expected = Number(r.numerator) / Number(r.frequency);
+    const tolerance = Math.max(1e-12, Math.abs(Number(r.pi)) * 1e-10);
+    if(!Number.isFinite(expected) || Math.abs(expected - Number(r.pi)) > tolerance){
+      alert("Excel export stopped: a paternity index failed validation at locus " + r.locus + ".");
+      return;
+    }
+  }
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "STR Paternity Index Calculator";
+  wb.subject = "Verifiler Plus STR paternity index calculation";
+  wb.title = "Verifiler Plus Statistics";
+  wb.calcProperties = { fullCalcOnLoad: true, forceFullCalc: true, calcMode: "auto" };
+
+  const ws = wb.addWorksheet("VERIFILER PLUS STATISTICS");
+
+  // Match the supplied Verifiler Plus workbook's nine-column layout.
+  // Widths are assigned without column header properties to prevent
+  // ExcelJS from inserting an unwanted automatic header row.
+  ws.columns = [
+    { width: 10.71 }, { width: 12.29 }, { width: 12.71 },
+    { width: 13.86 }, { width: 13 }, { width: 9.71 },
+    { width: 12.86 }, { width: 30 }, { width: 16.71 }
+  ];
+
+  const thinBorder = {
+    top: { style: "thin", color: { argb: "FF000000" } },
+    left: { style: "thin", color: { argb: "FF000000" } },
+    bottom: { style: "thin", color: { argb: "FF000000" } },
+    right: { style: "thin", color: { argb: "FF000000" } }
+  };
+  const baseFont = { name: "Times New Roman", size: 10, color: { argb: "FF000000" } };
+
+  // Exactly one header row: row 1.
+  const headers = [
+    "Locus", "Mother", "Child", "Alleged father",
+    "Obligate paternal allele", "Frequency",
+    "Likelyhood ratio", "Paternity index", "CPI"
+  ];
+  const headerRow = ws.addRow(headers);
+  headerRow.height = 37.15;
+  headerRow.eachCell({ includeEmpty: true }, cell => {
+    cell.font = { ...baseFont, bold: true };
+    cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    cell.border = thinBorder;
+  });
+
+  let cumulative = 1;
+  rows.forEach((r, index) => {
+    const excelRow = index + 2;
+    const frequency = Number(r.frequency);
+    const likelihoodRatio = Number(r.numerator);
+    const pi = Number(r.pi);
+    cumulative *= pi;
+
+    const row = ws.addRow([
+      displayLocus(r.locus),
+      r.mother,
+      r.child,
+      r.father,
+      r.paternal,
+      frequency,
+      likelihoodRatio,
+      { formula: `G${excelRow}/F${excelRow}`, result: pi },
+      { formula: index === 0 ? `H${excelRow}` : `I${excelRow - 1}*H${excelRow}`, result: cumulative }
+    ]);
+
+    row.height = 19;
+    row.eachCell({ includeEmpty: true }, cell => {
+      cell.font = baseFont;
+      cell.border = thinBorder;
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    });
+    row.getCell(1).font = { ...baseFont, bold: true };
+    row.getCell(1).alignment = { vertical: "middle", horizontal: "left" };
+    row.getCell(8).alignment = { vertical: "middle", horizontal: "left" };
+    row.getCell(9).alignment = { vertical: "middle", horizontal: "left" };
+
+    // Preserve meaningful precision and prevent display rounding.
+    row.getCell(6).numFmt = "0.################";
+    row.getCell(7).numFmt = "0.################";
+    row.getCell(8).numFmt = "0.################";
+    row.getCell(9).numFmt = "0.################";
+  });
+
+  // Summary section: CPI, probability and probability percentage.
+  // Probability uses prior odds of 1:1: CPI / (CPI + 1).
+  ws.getRow(25).height = 10;
+
+  const summaryRows = [
+    {
+      row: 26,
+      label: "Combined paternity index",
+      formula: "PRODUCT(H2:H24)",
+      result: cpiValue,
+      numberFormat: "0.################"
+    },
+    {
+      row: 28,
+      label: "Probability",
+      formula: "IFERROR(1/(1+1/H26),0)",
+      result: cpiValue === 0 ? 0 : cpiValue / (cpiValue + 1),
+      numberFormat: "0.0000000000000000"
+    },
+    {
+      row: 29,
+      label: "Probability%",
+      formula: "H28*100",
+      result: (cpiValue === 0 ? 0 : cpiValue / (cpiValue + 1)) * 100,
+      numberFormat: "0.000000000000000000000000"
+    }
+  ];
+
+  summaryRows.forEach(item => {
+    const row = ws.getRow(item.row);
+    row.getCell(7).value = item.label;
+    row.getCell(8).value = {
+      formula: item.formula,
+      result: item.result
+    };
+    row.height = item.row === 26 ? 45 : 22;
+    [7, 8].forEach(col => {
+      const cell = row.getCell(col);
+      cell.font = { name: "Calibri", size: 11, color: { argb: "FF000000" } };
+      cell.border = thinBorder;
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: col === 8 ? "left" : "distributed",
+        wrapText: true
+      };
+    });
+    row.getCell(8).numFmt = item.numberFormat;
+  });
+
+  ws.views = [{ state: "normal", showGridLines: true }];
+  ws.pageSetup = {
+    orientation: "landscape",
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 1,
+    paperSize: ws.PAPER_A4
+  };
+  ws.properties.defaultRowHeight = 16.5;
+
+  // Final structural checks before writing the workbook.
+  if(ws.getRow(1).getCell(1).value !== "Locus" ||
+     ws.getRow(2).getCell(1).value !== displayLocus(rows[0].locus) ||
+     ws.getRow(24).getCell(1).value !== displayLocus(rows[22].locus) ||
+     ws.getRow(26).getCell(8).value.result !== cpiValue ||
+     ws.getRow(28).getCell(7).value !== "Probability" ||
+     ws.getRow(29).getCell(7).value !== "Probability%"){
+    alert("Excel export stopped: workbook structure validation failed.");
+    return;
+  }
+
+  const safeCase = ($("caseId").value || "STR_Paternity_Report")
+    .replace(/[^a-z0-9_-]/gi, "_");
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = safeCase + "_Paternity_Index.xlsx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Browser-only persistence: automatic recovery draft + explicitly saved case records.
+const DRAFT_STORAGE_KEY = "dravidTech.strPI.draft.v1";
+const SAVED_STORAGE_KEY = "dravidTech.strPI.savedCases.v1";
+let selectedSavedCaseId = null;
+let draftSaveTimer = null;
+
+function collectCurrentCase(){
+  const data = {
+    caseId:$("caseId").value, motherId:$("motherId").value, childId:$("childId").value,
+    fatherId:$("fatherId").value, analyst:$("analyst").value, requestDetails:$("requestDetails").value,
+    genotypes:LOCI.map((l,i)=>({
+      locus:l, mother:$("m_"+i).value, child:$("c_"+i).value,
+      father:$("f_"+i).value, obligate:$("obl_"+i).value
+    }))
+  };
+  return data;
+}
+function applyCaseData(data){
+  if(!data || !Array.isArray(data.genotypes)) return;
+  ["caseId","motherId","childId","fatherId","analyst","requestDetails"].forEach(id=>$(id).value=data[id]||"");
+  LOCI.forEach((l,i)=>{
+    const row=data.genotypes.find(x=>x.locus===l) || {};
+    $("m_"+i).value=row.mother||"";
+    $("c_"+i).value=row.child||"";
+    $("f_"+i).value=row.father||"";
+    $("obl_"+i).value=row.obligate||"";
+    refreshAlleleChoice(i);
+  });
+  calculate();
+}
+function saveDraftNow(){
+  try{
+    localStorage.setItem(DRAFT_STORAGE_KEY,JSON.stringify({
+      savedAt:new Date().toISOString(),data:collectCurrentCase()
+    }));
+    const status=$("draftStatus");
+    if(status) status.textContent="Draft saved automatically in this browser · "+new Date().toLocaleTimeString();
+  }catch(e){
+    const status=$("draftStatus");
+    if(status) status.textContent="Browser storage is unavailable or full. Save/export your work manually.";
+  }
+}
+function scheduleDraftSave(){
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer=setTimeout(saveDraftNow,250);
+}
+function restoreDraft(){
+  try{
+    const raw=localStorage.getItem(DRAFT_STORAGE_KEY);
+    if(!raw) return;
+    const draft=JSON.parse(raw);
+    if(draft && draft.data){
+      applyCaseData(draft.data);
+      const status=$("draftStatus");
+      if(status) status.textContent="Recovered your previous draft from "+new Date(draft.savedAt).toLocaleString()+". Changes will continue saving automatically.";
+    }
+  }catch(e){
+    console.warn("Could not restore the local draft",e);
+  }
+}
+function readSavedCases(){
+  try{
+    const value=JSON.parse(localStorage.getItem(SAVED_STORAGE_KEY)||"[]");
+    return Array.isArray(value)?value:[];
+  }catch(e){return [];}
+}
+function writeSavedCases(items){
+  try{localStorage.setItem(SAVED_STORAGE_KEY,JSON.stringify(items));return true;}
+  catch(e){alert("Could not save this case. Browser storage may be full or disabled. Export a report and free browser storage before trying again.");return false;}
+}
+function saveCurrentCase(){
+  calculate();
+  const data=collectCurrentCase();
+  const label=data.caseId.trim();
+  if(!label){
+    alert("Enter a Case / reference ID before saving this case.");
+    $("caseId").focus();
+    return;
+  }
+  const records=readSavedCases();
+  const existing=records.findIndex(x=>x.caseId.toLowerCase()===label.toLowerCase());
+  if(existing>=0 && !confirm("A saved case with this Case / reference ID already exists. Update it with the current data and results?")) return;
+  const results=(originalResults||[]).map(r=>({
+    locus:r.locus,mother:r.mother,child:r.child,father:r.father,paternal:r.paternal,
+    frequency:Number.isFinite(Number(r.frequency))?r.frequency:null,
+    numerator:Number.isFinite(Number(r.numerator))?r.numerator:null,
+    pi:Number.isFinite(Number(r.pi))?r.pi:null,valid:!!r.valid,status:r.status||""
+  }));
+  const valid=results.filter(r=>r.valid);
+  const complete=results.length===LOCI.length && valid.length===LOCI.length;
+  const cpi=complete?valid.reduce((v,r)=>v*Number(r.pi),1):null;
+  const record={
+    id:existing>=0?records[existing].id:("case_"+Date.now()+"_"+Math.random().toString(36).slice(2,8)),
+    caseId:label,createdAt:existing>=0?records[existing].createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString(),data,results,
+    summary:{validLoci:valid.length,totalLoci:LOCI.length,cpi,
+      probability:cpi===null?null:(cpi===0?0:cpi/(cpi+1))}
+  };
+  if(existing>=0) records[existing]=record; else records.unshift(record);
+  if(writeSavedCases(records)){
+    selectedSavedCaseId=record.id;
+    alert(existing>=0?"Saved case updated successfully.":"Case saved successfully in this browser.");
+    renderSavedList();
+  }
+}
+function renderSavedList(){
+  const records=readSavedCases();
+  $("savedCaseCount").textContent=records.length;
+  $("savedList").innerHTML=records.length?records.map(r=>`
+    <div class="saved-item ${r.id===selectedSavedCaseId?"selected":""}">
+      <div class="saved-item-main">
+        <strong>${esc(r.caseId||"Untitled case")}</strong>
+        <span>Updated ${esc(new Date(r.updatedAt||r.createdAt).toLocaleString())} · ${r.summary?.validLoci??0}/${r.summary?.totalLoci??23} loci valid · ${r.summary?.cpi===null||r.summary?.cpi===undefined?"CPI pending":"CPI "+esc(fmt(r.summary.cpi))}</span>
+      </div>
+      <div class="saved-item-actions"><button type="button" class="secondary" data-view-saved="${esc(r.id)}">View details</button><button type="button" data-load-saved="${esc(r.id)}">Load</button></div>
+    </div>`).join(""):'<div class="saved-empty">No saved cases yet. Open Calculator, enter a Case / reference ID and select “Save this case”.</div>';
+  $("savedList").querySelectorAll("[data-view-saved]").forEach(b=>b.addEventListener("click",()=>showSavedCase(b.dataset.viewSaved)));
+  $("savedList").querySelectorAll("[data-load-saved]").forEach(b=>b.addEventListener("click",()=>loadSavedCase(b.dataset.loadSaved)));
+  if(selectedSavedCaseId && records.some(r=>r.id===selectedSavedCaseId)) showSavedCase(selectedSavedCaseId);
+  else $("savedDetailCard").hidden=true;
+}
+function showSavedCase(id){
+  const r=readSavedCases().find(x=>x.id===id);
+  if(!r) return;
+  selectedSavedCaseId=id;
+  $("savedDetailCard").hidden=false;
+  $("savedDetailTitle").textContent="Case: "+r.caseId;
+  $("savedDetailMeta").textContent="Created "+new Date(r.createdAt).toLocaleString()+" · Last saved "+new Date(r.updatedAt).toLocaleString();
+  const d=r.data||{},s=r.summary||{};
+  const meta=[["Mother",d.motherId],["Child",d.childId],["Alleged father",d.fatherId],["Analyst",d.analyst],["Request details",d.requestDetails],["Loci evaluated",(s.validLoci??0)+" / "+(s.totalLoci??23)],["CPI",s.cpi===null||s.cpi===undefined?"Pending":fmt(s.cpi)],["Probability",s.probability===null||s.probability===undefined?"Pending":(s.probability*100).toPrecision(8)+"%"]];
+  $("savedDetailContent").innerHTML=`
+    <div class="saved-meta-grid">${meta.map(([k,v])=>`<div class="saved-meta-cell"><span>${esc(k)}</span><strong>${esc(v||"—")}</strong></div>`).join("")}</div>
+    <h3 style="font-size:13px;margin:18px 0 8px">Saved genotype and result data</h3>
+    <div class="tablewrap"><table class="saved-table"><thead><tr><th>Locus</th><th>Mother</th><th>Child</th><th>Alleged father</th><th>Obligate paternal allele</th><th>Frequency</th><th>LR / numerator</th><th>PI</th><th>Status</th></tr></thead><tbody>
+    ${(r.results||[]).map(x=>`<tr><td>${esc(displayLocus(x.locus))}</td><td>${esc(x.mother||"—")}</td><td>${esc(x.child||"—")}</td><td>${esc(x.father||"—")}</td><td>${esc(x.paternal||"—")}</td><td>${x.frequency===null?"—":esc(fmt(x.frequency))}</td><td>${x.numerator===null?"—":esc(fmt(x.numerator))}</td><td>${x.pi===null?"—":esc(fmt(x.pi))}</td><td>${x.valid?'<span style="color:#087443;font-weight:700">Valid</span>':'<span style="color:#b42318">Pending / Error</span>'}</td></tr>`).join("")}
+    </tbody></table></div>
+    <p class="small" style="margin-top:10px">This is the result snapshot captured when the case was saved. Load the case into Calculator to recalculate using the currently loaded database and calculation code.</p>`;
+  $("savedList").querySelectorAll(".saved-item").forEach(el=>el.classList.remove("selected"));
+  const selected=$("savedList").querySelector(`[data-view-saved="${CSS.escape(id)}"]`);
+  if(selected) selected.closest(".saved-item").classList.add("selected");
+}
+function loadSavedCase(id){
+  const r=readSavedCases().find(x=>x.id===id);
+  if(!r) return;
+  if(!confirm("Load this saved case into the calculator? The current calculator entries will be replaced.")) return;
+  applyCaseData(r.data);
+  saveDraftNow();
+  showPage("calculator");
+}
+function deleteSelectedSavedCase(){
+  const r=readSavedCases().find(x=>x.id===selectedSavedCaseId);
+  if(!r) return;
+  if(!confirm("Permanently delete the saved case '"+r.caseId+"' from this browser?")) return;
+  const remaining=readSavedCases().filter(x=>x.id!==selectedSavedCaseId);
+  if(writeSavedCases(remaining)){
+    selectedSavedCaseId=null;
+    $("savedDetailCard").hidden=true;
+    renderSavedList();
+  }
+}
+
+renderRows();
+restoreDraft();
+
+$("fillExample").onclick=fillExample;$("clear").onclick=clearAll;$("export").onclick=()=>exportXlsx().catch(e=>{console.error(e);alert("Excel export failed: "+e.message);});$("print").onclick=printResultsReport;
+
+
+function printResultsReport(){
+  calculate();
+  const rows=originalResults||[];
+  if(!rows.some(r=>r.valid)){
+    alert("Enter at least one complete locus with a valid allele frequency before printing the report.");
+    return;
+  }
+  const cpiComplete=rows.length===LOCI.length && rows.every(r=>r.valid);
+  const valid=rows.filter(r=>r.valid);
+  const cpi=cpiComplete?valid.reduce((p,r)=>p*Number(r.pi),1):null;
+  const probability=cpi===null?null:(cpi===0?0:cpi/(1+cpi));
+  const metaItems=[
+    ["Case / reference ID",$("caseId").value||"Not provided"],
+    ["Mother identifier",$("motherId").value||"Not provided"],
+    ["Child identifier",$("childId").value||"Not provided"],
+    ["Alleged father identifier",$("fatherId").value||"Not provided"],
+    ["Analyst",$("analyst").value||"Not provided"],
+    ["Dataset","STR Allele Probability Database"],
+    ["Loci evaluated",valid.length+" / 23"],
+    ["Report status",cpiComplete?"Complete":"Partial — loci pending"]
+  ];
+  $("printMeta").innerHTML=metaItems.map(([label,value])=>
+    `<div class="meta-box"><div class="meta-label">${esc(label)}</div><div class="meta-value">${esc(value)}</div></div>`
+  ).join("");
+  const metricItems=[
+    {cls:"cpi",label:cpiComplete?"Combined paternity index":"Partial CPI (valid loci only)",value:cpiComplete?fmt(cpi):fmt(valid.reduce((p,r)=>p*Number(r.pi),1))},
+    {cls:"prob",label:"Probability of paternity",value:probability===null?"Pending all 23 loci":(probability*100).toPrecision(8)+"%"},
+    {cls:"count",label:"Valid loci",value:valid.length+" / 23"}
+  ];
+  $("printMetrics").innerHTML=metricItems.map(m=>
+    `<div class="report-metric ${m.cls}"><div class="metric-label">${esc(m.label)}</div><div class="metric-value">${esc(m.value)}</div></div>`
+  ).join("");
+  let running=1;
+  $("printRows").innerHTML=rows.map(r=>{
+    const cumulative=r.valid?(running*=Number(r.pi)):null;
+    return `<tr>
+      <td>${esc(displayLocus(r.locus))}</td><td>${esc(r.mother||"—")}</td><td>${esc(r.child||"—")}</td>
+      <td>${esc(r.father||"—")}</td><td class="cell-allele">${esc(r.paternal||"—")}</td>
+      <td class="cell-frequency">${fmt(r.frequency)}</td><td>${fmt(r.numerator)}</td>
+      <td class="cell-pi">${fmt(r.pi)}</td><td class="cell-cpi">${cumulative===null?"—":fmt(cumulative)}</td>
+    </tr>`;
+  }).join("");
+  $("printNotes").textContent=
+    "Calculation: PI = likelihood ratio ÷ selected allele frequency; CPI = product of locus PIs. Probability is calculated using prior odds of 1:1 (CPI ÷ (CPI + 1)) and is shown only when all 23 loci are valid. " +
+    "Research / educational use only. This report is not validated or accredited for forensic casework, court reporting or clinical decisions. The supplied allele-frequency database does not identify its reference population; population relevance and source documentation require independent verification.";
+  $("printGenerated").textContent="Generated: "+new Date().toLocaleString();
+  window.print();
+}
+
+function showPage(page){
+  const isCalculator = page === "calculator";
+  const isDatabase = page === "database";
+  $("calculatorPage").hidden = !isCalculator;
+  $("databasePage").hidden = !isDatabase;
+  $("learnPage").hidden = page !== "learn";
+  $("savedPage").hidden = page !== "saved";
+  [["navCalculator",isCalculator],["navDatabase",isDatabase],["navLearn",page==="learn"],["navSaved",page==="saved"]].forEach(([id,on])=>{
+    $(id).classList.toggle("active",on);
+    $(id).setAttribute("aria-current",on?"page":"false");
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(isDatabase && !$("locusGrid").dataset.rendered) renderAlleleDatabase();
+  if(page === "learn") initLearningPage();
+  if(page === "saved") renderSavedList();
+}
+function renderAlleleDatabase(){
+  const loci = Object.entries(DB);
+  const totalAlleles = loci.reduce((sum,[,freqs])=>sum+Object.keys(freqs).length,0);
+  $("dbLocusCount").textContent = loci.length;
+  $("dbAlleleCount").textContent = totalAlleles;
+  $("dbVisibleCount").textContent = loci.length;
+  const grid = $("locusGrid");
+  grid.innerHTML = loci.map(([locus,frequencies])=>{
+    const entries = Object.entries(frequencies).sort((a,b)=>Number(a[0])-Number(b[0]));
+    const max = Math.max(...entries.map(([,v])=>Number(v)));
+    return `<article class="locus-card" data-locus="${esc(locus.toLowerCase())}">
+      <div class="locus-card-head">
+        <h3>${esc(displayLocus(locus))}</h3>
+        <span class="locus-count">${entries.length} alleles</span>
+      </div>
+      <table class="allele-table">
+        <thead><tr><th>Allele</th><th>Frequency</th><th>Percentage</th><th>Relative level</th></tr></thead>
+        <tbody>${entries.map(([allele,value])=>{
+          const numeric = Number(value);
+          const width = max > 0 ? numeric/max*100 : 0;
+          return `<tr data-allele="${esc(allele.toLowerCase())}">
+            <td>${esc(allele)}</td>
+            <td>${numeric.toFixed(6).replace(/0+$/,"").replace(/\.$/,"")}</td>
+            <td>${(numeric*100).toFixed(4).replace(/0+$/,"").replace(/\.$/,"")}%</td>
+            <td><div class="frequency-bar" aria-label="Relative frequency"><span style="width:${width.toFixed(2)}%"></span></div></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table>
+    </article>`;
+  }).join("");
+  grid.dataset.rendered = "true";
+  filterAlleleDatabase();
+}
+function filterAlleleDatabase(){
+  const query = $("alleleSearch").value.trim().toLowerCase();
+  let visibleLoci = 0;
+  document.querySelectorAll("#locusGrid .locus-card").forEach(card=>{
+    const locusMatch = card.dataset.locus.includes(query);
+    let visibleAlleles = 0;
+    card.querySelectorAll("tbody tr").forEach(row=>{
+      const alleleMatch = row.dataset.allele.includes(query);
+      const show = !query || locusMatch || alleleMatch;
+      row.hidden = !show;
+      if(show) visibleAlleles++;
+    });
+    const showCard = !query || locusMatch || visibleAlleles > 0;
+    card.hidden = !showCard;
+    if(showCard) visibleLoci++;
+  });
+  $("dbVisibleCount").textContent = visibleLoci;
+  $("dbEmpty").classList.toggle("hidden", visibleLoci !== 0);
+}
+
+let learningInitialized=false;
+function updateLessonPI(){
+  const n=Number($("lessonNumerator").value), p=Number($("lessonFrequency").value);
+  const valid=Number.isFinite(n)&&n>0&&Number.isFinite(p)&&p>0&&p<=1;
+  if(!valid){$("lessonPI").textContent="—";$("lessonWorking").textContent="Enter a positive numerator and a frequency greater than 0 and no more than 1.";return;}
+  const pi=n/p;
+  $("lessonPI").textContent=fmt(pi);
+  $("lessonWorking").textContent=fmt(n)+" ÷ "+fmt(p)+" = "+fmt(pi)+". This is a likelihood ratio for the locus evidence under the assumptions of the model.";
+}
+function initLearningPage(){
+  updateLessonPI();
+  if(learningInitialized) return;
+  learningInitialized=true;
+  ["lessonNumerator","lessonFrequency"].forEach(id=>$(id).addEventListener("input",updateLessonPI));
+  $("checkLessonQuiz").addEventListener("click",()=>{
+    const q1=document.querySelector('input[name="lessonQ1"]:checked');
+    const q2=document.querySelector('input[name="lessonQ2"]:checked');
+    $("lessonFeedback1").textContent=q1?(q1.value==="14"?"Correct — allele 14 is absent from the mother's genotype.":"Not quite. The child allele not found in the mother is 14."):"Choose an answer for Question 1.";
+    $("lessonFeedback1").style.color=q1&&q1.value==="14"?"#087443":"#b42318";
+    $("lessonFeedback2").textContent=q2?(q2.value==="10"?"Correct — 0.5 ÷ 0.05 = 10.":"Not quite. Divide 0.5 by 0.05."):"Choose an answer for Question 2.";
+    $("lessonFeedback2").style.color=q2&&q2.value==="10"?"#087443":"#b42318";
+  });
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add("in-view");
+        entry.target.querySelectorAll(".walk-step").forEach((step,i)=>setTimeout(()=>step.classList.add("visible"),i*180));
+        observer.unobserve(entry.target);
+      }
+    });
+  },{threshold:.12});
+  document.querySelectorAll("#learnPage .reveal").forEach(el=>observer.observe(el));
+}
+
+$("navCalculator").addEventListener("click",()=>showPage("calculator"));
+$("navDatabase").addEventListener("click",()=>showPage("database"));
+$("navLearn").addEventListener("click",()=>showPage("learn"));
+$("navSaved").addEventListener("click",()=>showPage("saved"));
+$("saveWork").addEventListener("click",saveCurrentCase);
+$("refreshSaved").addEventListener("click",renderSavedList);
+$("loadSavedCase").addEventListener("click",()=>loadSavedCase(selectedSavedCaseId));
+$("deleteSavedCase").addEventListener("click",deleteSelectedSavedCase);
+document.getElementById("calculatorPage").addEventListener("input",scheduleDraftSave);
+document.getElementById("calculatorPage").addEventListener("change",scheduleDraftSave);
+window.addEventListener("beforeunload",saveDraftNow);
+$("alleleSearch").addEventListener("input",filterAlleleDatabase);
+
+</script>
+
+<footer class="brand-footer">
+  <div class="brand-footer-inner">
+    <div class="brand-footer-copy">
+      <strong>Dravid Tech Solutions</strong>
+      <span>Thoughtfully built tools for learning and forensic science.</span>
+    </div>
+    <div class="brand-footer-contact">
+      <span>For work and collaboration</span>
+      <a href="mailto:dravidsundar984@gmail.com?subject=Work%20Enquiry%20%E2%80%93%20Dravid%20Tech%20Solutions">dravidsundar984@gmail.com</a>
+    </div>
+    <div class="brand-footer-legal">© <span id="footerYear">2026</span> Dravid Tech Solutions. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>document.getElementById("footerYear").textContent = new Date().getFullYear();</script>
+</body></html>
